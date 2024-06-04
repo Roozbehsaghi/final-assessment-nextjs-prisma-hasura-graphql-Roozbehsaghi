@@ -1,0 +1,9 @@
+query Sitters {
+  SitterProfile {
+    id
+    userId
+    name
+    city
+    hourly_rate_euro
+  }
+}
