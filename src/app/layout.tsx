@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers";
 import { getAuth, getToken } from "@/lib/auth-options";
+import { Navbar } from "@/components/navbar/navbar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,6 +24,8 @@ export default async function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers session={session} token={token}>
+          <Navbar />
+
           {children}
         </Providers>
       </body>

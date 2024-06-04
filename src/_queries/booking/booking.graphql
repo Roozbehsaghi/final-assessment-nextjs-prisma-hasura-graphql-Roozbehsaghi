@@ -1,0 +1,18 @@
+query Bookings {
+  Booking {
+    bookeeId
+    bookerId
+    starts_at
+    isCancel
+    id
+    end_at
+    description
+    user {
+      name
+    }
+    SitterProfile {
+      name
+      userId
+    }
+  }
+}
