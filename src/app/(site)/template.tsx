@@ -13,7 +13,7 @@ export default function SiteTemplate({
   }
 
   return (
-    <div className="max-w-4xl flex flex-col items-center justify-center h-full ">
+    <div className="max-w-4xl flex flex-col items-center justify-center h-full mx-auto">
       {children}
     </div>
   );

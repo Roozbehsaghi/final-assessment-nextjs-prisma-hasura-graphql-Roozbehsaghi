@@ -25,8 +25,8 @@ interface BookingCardProps {
   bookingId: number;
   sitter?: string | null;
   user?: string | null;
-  startingDate: string;
-  endingDate: string;
+  startingDate: number | Date;
+  endingDate: number | Date;
   status: boolean;
   desc: string;
   reviewer: number;
@@ -73,51 +73,30 @@ export const BookingCard = ({
     router.refresh();
   };
   return (
-    <div
-      className={cn(
-        "flex items-center w-full gap-2 p-3",
-        status ? "bg-rose-600" : "bg-slate-100"
-      )}
-    >
-      <div className="flex w-full justify-between items-center gap-2">
+    <tbody>
+      <tr className={cn(status ? "bg-rose-600 text-white" : "bg-slate-100")}>
         {sitter && (
-          <div className="flex flex-col gap-2">
-            <p className="text-center">Sitter Name</p>
-            <Separator />
+          <td>
             <p className="text-center">{sitter}</p>
-          </div>
+          </td>
         )}
         {user && (
-          <div className="flex flex-col gap-2">
-            <p className="text-center">Booker Name</p>
-            <Separator />
+          <td>
             <p className="text-center">{user}</p>
-          </div>
+          </td>
         )}
-        <Separator orientation="vertical" />
-        <div className="flex flex-auto flex-col gap-2">
-          <p className="text-center">Starting Date</p>
-          <Separator />
-          <p className="text-center">{startDate}</p>
-        </div>
-        <Separator orientation="vertical" />
-        <div className="flex flex-auto flex-col gap-2">
-          <p className="text-center">Ending Date</p>
-          <Separator />
-          <p className="text-center">{endDate}</p>
-        </div>
-        <Separator orientation="vertical" />
-        <div className="flex flex-auto flex-col gap-2">
-          <p className="text-center">Description</p>
-          <Separator />
+        <td>
+          <p className="text-center">{format(startingDate, "Pp")}</p>
+        </td>
+        <td>
+          <p className="text-center">{format(endingDate, "Pp")}</p>
+        </td>
+        <td>
           <p className="text-center">{desc}</p>
-        </div>
-        <Separator orientation="vertical" />
-        <div className="flex flex-col gap-2">
-          <p className="text-center">actions</p>
-          <Separator />
+        </td>
+        <td>
           {status ? (
-            <p>this booking is canceled</p>
+            <p className="text-center">this booking is canceled</p>
           ) : compare ? (
             <Dialog>
               <DialogTrigger asChild>
@@ -138,7 +117,6 @@ export const BookingCard = ({
                 >
                   <div className="grid grid-col-4 items-center gap-4">
                     <Input
-                      className="hidden"
                       {...register("bookingId")}
                       defaultValue={bookingId}
                       hidden
@@ -164,10 +142,11 @@ export const BookingCard = ({
               revieweeId={reviewee}
               reviewerId={reviewer}
               forwhom={forWhom}
+              title="Rate and Review"
             />
           )}
-        </div>
-      </div>
-    </div>
+        </td>
+      </tr>
+    </tbody>
   );
 };

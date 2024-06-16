@@ -10,26 +10,37 @@ import { Separator } from "@/components/ui/separator";
 import { BookingCard } from "@/components/booking-card";
 import { ShowReviews } from "@/components/show-reviews";
 import { UpdateSitterProfile } from "../../_component/update-sitter-button";
+import { EmptyState } from "@/components/empty-state";
+import { ReviewCard } from "@/components/review-card";
+import { ReviewForm } from "@/components/review-for";
+import { getReviewsById } from "@/actions/getReviewsById";
 
 const SitterProfilePage = async ({
   params: { sitterId },
 }: {
   params: { sitterId: number };
 }) => {
-  //@ts-ignore
-  const sitter = await getSitterInfo(parseInt(sitterId));
+  const sId = Number(sitterId);
 
-  if (!sitter) {
-    redirect("/");
-  }
+  const sitter = await getSitterInfo(sId);
+  //@ts-ignore
+  const reviews = await getReviewsById(sitter.userId!);
+  if (!reviews) return console.log("something went wrong");
+
+  if (!sitter) redirect("/");
+
   const token = getToken();
   const client = createClient(token);
 
-  const { data, error } = await client.query({ query: BookingsDocument });
+  const { data: query, error } = await client.query({
+    query: BookingsDocument,
+  });
+  const { data: user } = await client.query({ query: UsersDocument });
+
   return (
     <div
-      className="flex flex-col max-w-5xl justify-center mx-auto lg:p-4 py-24 px-4"
-      suppressHydrationWarning={true}
+      className="flex flex-col max-w-5xl justify-center mx-auto lg:p-4 p-4"
+      suppressHydrationWarning
     >
       <div className="flex justify-between">
         <div className="flex flex-col gap-7">
@@ -42,56 +53,129 @@ const SitterProfilePage = async ({
               image={sitter.userImage}
             />
           </div>
-          <div className="">
-            <BookingSitter sitterId={sitterId} />
+
+          {user.users[0].id !== sitter.userId && (
+            <div className="flex gap-5">
+              <BookingSitter sitterId={sitterId} />
+              <ReviewForm
+                reviewerId={user.users[0].id}
+                revieweeId={sitter.userId}
+                forwhom="SITTER"
+                title="Share your exprience with this sitter"
+              />
+            </div>
+          )}
+        </div>
+
+        {user.users[0].id === sitter.userId && (
+          <div className="flex flex-col gap-7">
+            <UpdateSitterProfile
+              city={sitter.city}
+              hourlyRate={sitter.hourlyRate}
+            />
           </div>
-        </div>
-        <div className="flex flex-col gap-7">
-          <UpdateSitterProfile
-            city={sitter.city}
-            hourlyRate={sitter.hourlyRate}
-          />
-        </div>
+        )}
       </div>
       <Separator className="my-4" />
-      <div className="">
-        {data.Booking.map(async (date) => {
-          const { data } = await client.query({ query: UsersDocument });
-
-          if (date.bookeeId == sitterId) {
+      <table className="table-auto border-spacing-2">
+        <thead>
+          <tr>
+            <th>
+              <p>Starting Date</p>
+              <Separator />
+            </th>
+            <th>
+              <p>Ending Date</p>
+              <Separator />
+            </th>
+            <th>
+              <p>Description</p>
+              <Separator />
+            </th>
+            <th>
+              <p>Actions</p>
+              <Separator />
+            </th>
+          </tr>
+        </thead>
+        {query.Booking.map(async (query) => {
+          if (query.bookeeId == sitterId) {
             return (
               <BookingCard
-                key={date.id}
-                bookingId={date.id}
-                endingDate={date.starts_at}
-                startingDate={date.end_at}
-                desc={date.description}
-                status={date.isCancel}
+                key={query.id}
+                bookingId={query.id}
+                startingDate={query.starts_at}
+                endingDate={query.end_at}
+                desc={query.description}
+                status={query.isCancel}
                 reviewer={
-                  date.bookerId === data.users[0].id
-                    ? date.bookerId
-                    : date.SitterProfile.userId
+                  query.bookerId === user.users[0].id
+                    ? query.bookerId
+                    : query.SitterProfile.userId
                 }
                 reviewee={
-                  date.bookerId !== data.users[0].id
-                    ? date.bookerId
-                    : date.SitterProfile.userId
+                  query.bookerId === user.users[0].id
+                    ? query.SitterProfile.userId
+                    : query.bookerId
                 }
                 forWhom={
-                  date.bookerId === data.users[0].id ? "EMPLOYEE" : "SITTER"
+                  sitter.userId === user.users[0].id ? "EMPLOYEE" : "SITTER"
                 }
               />
             );
           } else return;
         })}
-      </div>
+      </table>
       <Separator className="my-4" />
-
-      <div className="">
+      <div className="flex flex-col gap-5 items-center justify-center">
         <h3 className="text-lg text-emerald-900 pb-4">
+          Check reviews employees wrote for {sitter.name}
+        </h3>
+        <div className="relative -mx-4 mt-3 grid grid-cols-1 items-start gap-2 overflow-hidden px-4 sm:mt-3 md:grid-cols-2 lg:grid-cols-3">
+          {reviews.recievedReviews.length === 0 ? (
+            <EmptyState>
+              <h3 className="">This sitter has not recieved any review yet</h3>
+              <p>Write a review now</p>
+            </EmptyState>
+          ) : (
+            reviews.recievedReviews.map((review) => {
+              if (!review.message) return;
+              return (
+                <ReviewCard
+                  key={review.id}
+                  rating={review.score}
+                  message={review.message}
+                  posted={review.createdAt}
+                />
+              );
+            })
+          )}
+        </div>
+        <h3 className="text-lg text-muted-forground pb-4">
           Check reviews {sitter.name} wrote for employees
         </h3>
-        <ShowReviews sitterId={sitter.userId} />
+        <div className="relative -mx-4 mt-3 grid grid-cols-1 items-start gap-8 overflow-hidden px-4 sm:mt-3 md:grid-cols-2 lg:grid-cols-3">
+          {reviews.writtenReviews.length === 0 ? (
+            <EmptyState>
+              <h3 className="">
+                This sitter has not reviewed any employer yet
+              </h3>
+              <p>Share your exprience now</p>
+            </EmptyState>
+          ) : (
+            reviews.writtenReviews.map((review) => {
+              if (!review.message) return;
+              return (
+                <ReviewCard
+                  key={review.id}
+                  rating={review.score}
+                  message={review.message}
+                  posted={review.createdAt}
+                />
+              );
+            })
+          )}
+        </div>
       </div>
     </div>
   );

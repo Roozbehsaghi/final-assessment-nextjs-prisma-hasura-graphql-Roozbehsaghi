@@ -15,7 +15,7 @@ export const SitterCard = ({
   hourlyRate,
 }: SitterCardProps) => {
   return (
-    <div className="flex flex-col gap-4 max-w-md bg-neutral-400 justify-center items-center rounded-md p-2">
+    <div className="flex flex-col gap-4 max-w-md justify-center items-center  m-2 rounded-3xl bg-slate-100 p-6 shadow-md shadow-gray-900/20">
       <h2 className="text-lg text-neutral-700">{name}</h2>
       <Image src="/placeholder.jpg" width={70} height={70} alt="Avatar" />
       <p>works at {city}</p>

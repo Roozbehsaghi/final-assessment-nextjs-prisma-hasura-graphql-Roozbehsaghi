@@ -19,7 +19,7 @@ export const ShowSitters = async ({ token, userId }: ShowsittersProps) => {
   }
 
   return (
-    <div className="mb-2">
+    <div className="mt-6 grid grid-cols-1 gap-x-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
       {data.SitterProfile.map((sitter) => {
         if (sitter.userId === userId) return;
         return (

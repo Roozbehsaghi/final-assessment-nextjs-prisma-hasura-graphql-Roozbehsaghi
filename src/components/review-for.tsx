@@ -21,12 +21,14 @@ interface ReviewFormProps {
   reviewerId: number;
   revieweeId: number;
   forwhom: "SITTER" | "EMPLOYEE";
+  title: string;
 }
 
 export const ReviewForm = ({
   reviewerId,
   revieweeId,
   forwhom,
+  title,
 }: ReviewFormProps) => {
   const {
     register,
@@ -58,7 +60,7 @@ export const ReviewForm = ({
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full h-full">
-          Rate and Reviw
+          {title}
         </Button>
       </DialogTrigger>
       <DialogContent>

@@ -1,5 +1,6 @@
 import LoginButton from "@/components/auth/login-btn";
 import { Logo } from "@/components/branding/logo";
+import { Hero } from "@/components/hero";
 import { ShowSitters } from "@/components/show-sitters";
 import { SitterButton } from "@/components/sitter-button";
 import { createClient } from "@/lib/apollo";
@@ -34,16 +35,15 @@ export default async function Home() {
           </h1>
         )}
       </div>
-      <div className="max-w-sm">
+      <div className="max-w-sm mt-12">
         <SitterButton userId={data.users[0].id} />
       </div>
-      <div className="flex items-center justify-center">
+      <Hero />
+      <div className="flex flex-col items-center justify-center mt-12">
         <p className="color-muted-foreground">
           Check out our extraordinary sitters and books them according to your
           need
         </p>
-      </div>
-      <div className="mb-32 grid gap-y-3 text-center lg:mb-2 lg:w-full lg:max-w-5xl lg:grid-cols-5 lg:text-left">
         <ShowSitters token={token} userId={data.users[0].id} />
       </div>
     </main>
